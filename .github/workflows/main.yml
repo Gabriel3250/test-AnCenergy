@@ -1,0 +1,47 @@
+name: Build and Deploy ASP.NET Framework (AnCenergy)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restaurar paquetes NuGet
+        run: nuget restore AnCenergy/AnCenergy.sln
+
+      - name: Compilar solución
+        run: msbuild AnCenergy/AnCenergy.sln /p:Configuration=Release
+
+      - name: Subir artefacto del sitio compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: AnCenergy/AnCenergy/bin
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Descargar artefacto compilado
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+
+      - name: Deploy por FTP (por ejemplo en Somee)
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ftp.tusitio.somee.com
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./  # Directorio descargado del build
