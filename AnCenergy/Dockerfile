@@ -15,7 +15,8 @@ WORKDIR /src
 COPY ["AnCenergy\AnCenergy.csproj", "."]
 RUN dotnet restore "./AnCenergy/AnCenergy.csproj"
 COPY . .
-WORKDIR "/src/."
+# WORKDIR "/src/."
+WORKDIR "AnCenergy\AnCenergy.sln"
 RUN dotnet build "./AnCenergy/AnCenergy.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.
